@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using tabuleiro;
 using xadrez;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
 
@@ -36,7 +37,7 @@ namespace xadrez_console
             Console.Write("Brancas: ");
             imprimirConjunto(partida.pecasCapturadas(Cor.Branca));
             Console.Write("Pretas: ");
-            ConsoleColor aux= Console.ForegroundColor;
+            ConsoleColor aux = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Yellow;
             imprimirConjunto(partida.pecasCapturadas(Cor.Preta));
             Console.ForegroundColor = aux;
@@ -48,7 +49,7 @@ namespace xadrez_console
         public static void imprimirConjunto(HashSet<Peca> conjunto)
         {
             Console.Write("[");
-            foreach(Peca x in conjunto)
+            foreach (Peca x in conjunto)
             {
                 Console.Write(x + " ");
             }
@@ -58,7 +59,7 @@ namespace xadrez_console
         {
             for (int i = 0; i < tab.Linha; i++)
             {
-                Console.Write(8 - i + " ");
+                trocaCor(ConsoleColor.Blue, 8 - i + " ");
                 for (int j = 0; j < tab.Coluna; j++)
                 {
                     imprimirPeca(tab.peca(i, j));
@@ -66,8 +67,17 @@ namespace xadrez_console
                 Console.WriteLine();
             }
 
-            Console.Write("  a b c d e f g h");
+            trocaCor(ConsoleColor.Blue, "  a b c d e f g h");
             Console.WriteLine();
+
+        }
+
+        private static void trocaCor(ConsoleColor color, object texto)
+        {
+            ConsoleColor aux = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+            Console.Write(texto);
+            Console.ForegroundColor = aux;
 
         }
 
@@ -78,7 +88,7 @@ namespace xadrez_console
 
             for (int i = 0; i < tab.Linha; i++)
             {
-                Console.Write(8 - i + " ");
+                trocaCor(ConsoleColor.Blue, 8 - i + " ");
                 for (int j = 0; j < tab.Coluna; j++)
                 {
                     if (posicoesPossiveis[i, j])
@@ -95,8 +105,7 @@ namespace xadrez_console
                 }
                 Console.WriteLine();
             }
-
-            Console.Write("  a b c d e f g h");
+            trocaCor(ConsoleColor.Blue, "  a b c d e f g h");
             Console.WriteLine();
             Console.BackgroundColor = fundoOriginal;
         }
@@ -105,10 +114,28 @@ namespace xadrez_console
         public static PosicaoXadrez lerPosicaoXadrez()
         {
             string s = Console.ReadLine();
-            char coluna = s[0];
-            int linha = int.Parse(s[1] + "");
-            return new PosicaoXadrez(coluna, linha);
+            string padrao = "^[a-h][1-8]$";
 
+            Regex regex = new Regex(padrao);
+            try
+            {
+                if (string.IsNullOrEmpty(s) || !regex.IsMatch(s))
+                {
+                    Console.WriteLine("Formato Inválido!");
+                    return lerPosicaoXadrez();
+                }
+                else
+                {
+                    char coluna = s[0];
+                    int linha = int.Parse(s[1] + "");
+                    return new PosicaoXadrez(coluna, linha);
+                }
+            }
+            catch (TabuleiroException e)
+            {
+                Console.WriteLine("Formato invalido");
+                return lerPosicaoXadrez();
+            }
         }
 
         public static void imprimirPeca(Peca peca)
